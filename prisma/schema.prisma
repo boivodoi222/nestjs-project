@@ -1,0 +1,151 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Device {
+  deviceId        Int                   @id @default(autoincrement())
+  deviceCode      String                @unique @db.VarChar(50)
+  deviceName      String                @db.VarChar(100)
+  description     String                @db.VarChar(255)
+  deviceTypeId    Int                   @db.Integer
+  serialNumber    String                @unique @db.VarChar(100)
+  assetTag        String                @unique @db.VarChar(100)
+  location        String                @db.VarChar(100)
+  purchasePrice   Decimal?
+  purchaseDate    DateTime              @db.Date
+  warrantyEndDate DateTime              @db.Date
+  createdAt       DateTime?             @default(now())
+  updatedAt       DateTime?             @updatedAt
+  deviceType      DeviceTypes           @relation(fields: [deviceTypeId], references: [deviceTypeId])
+  Assignments     DeviceAssignments[]
+  disposals       DeviceDisposals[]
+  StatusHistories DeviceStatusHistory[]
+  Maintenance     Maintenance[]
+}
+
+model DeviceStatus {
+  statusId   Int                   @id @default(autoincrement())
+  statusName String                @unique @db.VarChar(50)
+  note       String                @db.VarChar(255)
+  histories  DeviceStatusHistory[]
+}
+
+model DeviceStatusHistory {
+  statusHistoryId Int          @id @default(autoincrement())
+  deviceId        Int          @db.Integer
+  device          Device       @relation(fields: [deviceId], references: [deviceId])
+  statusId        Int          @db.Integer
+  status          DeviceStatus @relation(fields: [statusId], references: [statusId])
+  note            String       @db.VarChar(255)
+  updatedAt       DateTime     @default(now())
+}
+
+model User {
+  userId    Int       @id @default(autoincrement())
+  fullName  String    @db.VarChar(100)
+  email     String    @db.VarChar(100)
+  phone     String    @db.VarChar(20)
+  username  String    @unique @db.VarChar(50)
+  password  String    @db.VarChar(100)
+  role      String    @db.VarChar(50)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  deviceAssignments  DeviceAssignments[]
+  approvedDisposals  DeviceDisposals[]   @relation("ApprovedBy")
+  requestsMade       Requests[]          @relation("RequestedBy")
+  requestsApproved   Requests[]          @relation("RequestApprovedBy")
+  maintenanceReports Maintenance[]
+}
+
+model Departments {
+  departmentId   Int    @id @default(autoincrement())
+  departmentName String @db.VarChar(100)
+
+  deviceAssignments DeviceAssignments[]
+}
+
+model DeviceTypes {
+  deviceTypeId Int    @id @default(autoincrement())
+  typeName     String @db.VarChar(50)
+
+  devices Device[]
+}
+
+model DeviceAssignments {
+  assignmentId Int       @id @default(autoincrement())
+  deviceId     Int
+  departmentId Int
+  userId       Int
+  assigneddate DateTime  @default(now())
+  returneddate DateTime?
+  notes        String?
+
+  device     Device      @relation(fields: [deviceId], references: [deviceId])
+  department Departments @relation(fields: [departmentId], references: [departmentId])
+  user       User        @relation(fields: [userId], references: [userId])
+}
+
+model DeviceDisposals {
+  disposalId     Int      @id @default(autoincrement())
+  deviceId       Int
+  disposaldate   DateTime
+  reason         String   @db.VarChar(255)
+  finalStatus    String   @db.VarChar(100)
+  remainingValue Decimal  @db.Decimal(18, 2)
+  approvedBy     Int?
+  approvedDate   DateTime?
+  notes          String?  @db.Text
+
+  device   Device @relation(fields: [deviceId], references: [deviceId])
+  Approver User?   @relation("ApprovedBy", fields: [approvedBy], references: [userId])
+}
+
+model Maintenance {
+  maintenanceId       Int      @id @default(autoincrement())
+  deviceId            Int      
+  reportedBy          Int
+  maintenancedate     DateTime? @default(now())
+  nextMaintenancedate DateTime? 
+  description         String?   @db.VarChar(255)
+  status              String   @db.VarChar(50)
+  cost                Float
+
+  device   Device @relation(fields: [deviceId], references: [deviceId])
+  reporter User   @relation(fields: [reportedBy], references: [userId])
+}
+
+model RequestType {
+  requestTypeId   Int     @id @default(autoincrement())
+  requestTypeName String  @db.VarChar(50)
+  description     String? @db.VarChar(255)
+
+  requests Requests[]
+}
+
+model Requests {
+  requestId     Int       @id @default(autoincrement())
+  requestTypeId Int
+  requestedBy   Int
+  requestdate   DateTime  @default(now())
+  description   String?   @db.VarChar(255)
+  approvedBy    Int?
+  approvedDate  DateTime?
+  status        String    @db.VarChar(50)
+
+  Type      RequestType @relation(fields: [requestTypeId], references: [requestTypeId])
+  Requester User        @relation("RequestedBy", fields: [requestedBy], references: [userId])
+  Approver  User?       @relation("RequestApprovedBy", fields: [approvedBy], references: [userId])
+}

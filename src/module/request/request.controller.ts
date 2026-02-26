@@ -13,27 +13,28 @@ export class RequestController {
     constructor(private readonly requestService: RequestService) { }
     @Get()
     @Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    getRequests() { return this.requestService.getRequests(); }
+    async getRequests() { const data = await this.requestService.getRequests(); return { success: true, data } }
 
     @Get(':id')
     @Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    getRequestById(@Param('id') id: string) { return this.requestService.getRequest(+id); }
+    async getRequestById(@Param('id') id: string) { const data = await this.requestService.getRequest(+id); return { success: true, data } }
 
     @Post()
     @Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
     createRequest(@Body() body: CreateRequestDto, @Req() req: any) {
         console.log('REQ.USER:', req.user);
-        return this.requestService.createRequest(body, req.user.userId);
+        return this.requestService.createRequest(body, req.user.userId).then(data => ({ success: true, data }));
     }
 
     @Put(':id')
     @Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    updateUser(@Param('id') id: string, @Body() body: UpdateRequestDto, @Req() req: any) {
-        return this.requestService.updateRequest(+id, body, req.user.userId);
+    async updateUser(@Param('id') id: string, @Body() body: UpdateRequestDto, @Req() req: any) {
+        const data = await this.requestService.updateRequest(+id, body, req.user.userId);
+        return { success: true, data };
     }
 
     @Delete(':id')
     @Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    deleteRequest(@Param('id') id: string) { return this.requestService.deleteRequest(+id); }
+    async deleteRequest(@Param('id') id: string) { const data = await this.requestService.deleteRequest(+id); return { success: true, data } }
 
 }

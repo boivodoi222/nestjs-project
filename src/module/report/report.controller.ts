@@ -6,40 +6,40 @@ export class ReportController {
     constructor(private reportService: ReportService) { }
 
     @Get('summary')
-    async summary(@Res() res) {
-        const summary = await this.reportService.summaryReport();
-        if (!summary) {
+    async summary() {
+        const data = await this.reportService.summaryReport();
+        if (!data) {
             throw new NotFoundException('User not found');
         }
-        return res.json(summary);
+        return { success: true, data };
     }
 
     @Get('status')
-    async status(@Res() res) {
-        const status = await this.reportService.reportByStatus();
-        if (!status) {
+    async status() {
+        const data = await this.reportService.reportByStatus();
+        if (!data) {
             throw new NotFoundException('User not found');
         }
-        return res.json(status);
+        return { success: true, data };
     }
 
     @Get('device-type')
-    async deviceType(@Res() res) {
-        const type = await this.reportService.reportByDeviceType();
-        if (!type) {
+    async deviceType() {
+        const data = await this.reportService.reportByDeviceType();
+        if (!data) {
             throw new NotFoundException('User not found');
         }
-        return res.json(type);
+        return { success: true, data };
     }
 
 
     @Get('statistic/:year')
-    async statisticYear(@Param('year') year: number, @Res() res) {
-        const statistic = await this.reportService.statisticByYear(Number(year));
-        if (!statistic) {
+    async statisticYear(@Param('year') year: number) {
+        const data = await this.reportService.statisticByYear(Number(year));
+        if (!data) {
             throw new NotFoundException('User not found');
         }
-        return res.json(statistic);
+        return { success: true, data };
 
     }
 }

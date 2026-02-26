@@ -12,6 +12,7 @@ export class AuthController {
       body.username,
       body.password,
     );
-    return this.authService.login(user);
+    const data = await this.authService.login(user);
+    return { success: true, data };
   }
 }

@@ -99,7 +99,12 @@ export class DeviceService {
   }
 
   async create(@Body() body: CreateDeviceDto): Promise<any> {
-    const device = await this.prisma.device.create({ data: body });
+    const device = await this.prisma.device.create({ 
+      data:{ ...body,
+        purchaseDate: new Date(body.purchaseDate),
+        warrantyEndDate: new Date(body.warrantyEndDate),
+      }
+     });
     await this.prisma.deviceStatusHistory.create({
       data: {
         deviceId: device.deviceId,

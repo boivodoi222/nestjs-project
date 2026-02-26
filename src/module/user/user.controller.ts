@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from 'src/common/guards/auth.guard';
@@ -11,23 +11,22 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserController {
     constructor(private readonly userService: UserService) { }
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Get()@Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    getUsers() { return this.userService.getUsers()}
+    @Get()@Roles(Role.ADMIN, Role.MANAGER)
+    async getUsers() { const data = await this.userService.getUsers(); return { success: true, data } }
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Get(':id')@Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    getUserById(@Param('id') id: string){ return this.userService.getUser(+id)}
+    async getUserById(@Param('id') id: string){ const data = await this.userService.getUser(+id); return { success: true, data } }
 
     @Post('register')
     @Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    createUser(@Body() body: CreateUserDto) { return this.userService.createUser(body)}
+    async createUser(@Body() body: CreateUserDto) { const data = await this.userService.createUser(body); return { success: true, data } }
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Put(':id')@Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    updateUser(@Param('id') id: number, @Body() body: UpdateUserDto){return this.userService.updateUser(+id, body);}
+    async updateUser(@Param('id') id: number, @Body() body: UpdateUserDto,  @Req() req: any){ const data = await this.userService.updateUser(+id, body, req); return { success: true, data } }
     
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Delete(':id')@Roles(Role.ADMIN, Role.MANAGER)
-    deleteUser(@Param('id') id: string) { return this.userService.deleteUser(+id)}
-
+    async deleteUser(@Param('id') id: string) { const data = await this.userService.deleteUser(+id); return { success: true, data } }
 }

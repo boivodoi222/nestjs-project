@@ -15,22 +15,40 @@ export class DeviceController {
   constructor(private readonly deviceService: DeviceService) { }
 
   @Post() @Roles(Role.ADMIN, Role.MANAGER)
-  create(@Body() createDeviceDto: CreateDeviceDto) { return this.deviceService.create(createDeviceDto); }
+  async create(@Body() createDeviceDto: CreateDeviceDto) {
+    const data = await this.deviceService.create(createDeviceDto);
+    return { success: true, data };
+  }
 
   @Get() @Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-  getDevices() { return this.deviceService.getDevices(); }
+  async getDevices() {
+    const data = await this.deviceService.getDevices();
+    return { success: true, data };
+  }
 
   @Get('search/:keyword') @Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-  getDeviceByKeyword(@Param('keyword') keyword: string) { return this.deviceService.search(keyword); }
+  async getDeviceByKeyword(@Param('keyword') keyword: string) {
+    const data = await this.deviceService.search(keyword);
+    return { success: true, data };
+  }
 
   @Get(':id') @Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-  getDevice(@Param('id') id: string) {return this.deviceService.getDevice(+id); }
+  async getDevice(@Param('id') id: string) {
+    const data = await this.deviceService.getDevice(+id);
+    return { success: true, data };
+  }
 
   @Put(':id') @Roles(Role.ADMIN, Role.MANAGER)
-  update(@Param('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto) {return this.deviceService.update(+id, updateDeviceDto);}
+  async update(@Param('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto) {
+    const data = await this.deviceService.update(+id, updateDeviceDto);
+    return { success: true, data };
+  }
 
   @Delete(':id') @Roles(Role.ADMIN, Role.MANAGER)
-  remove(@Param('id') id: string) { return this.deviceService.delete(+id); }
+  async remove(@Param('id') id: string) {
+    const data = await this.deviceService.delete(+id);
+    return { success: true, data };
+  }
 
 }
 

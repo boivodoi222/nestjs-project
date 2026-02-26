@@ -13,22 +13,32 @@ export class MaintenanceController {
     constructor(private readonly maintenanceService: MaintenanceService) { }
 
     @Get()@Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    getMaintenances() {
-        return this.maintenanceService.getMaintenances();}
+    async getMaintenances() {
+        const data = await this.maintenanceService.getMaintenances();
+        return { success: true, data };
+    }
         
     @Get(':id')@Roles(Role.ADMIN, Role.MANAGER, Role.SUPERVISOR, Role.USER)
-    getMaintenance(@Param('id') id: string): Promise<any> {
-        return this.maintenanceService.getMaintenance(+id);}
+    async getMaintenance(@Param('id') id: string): Promise<any> {
+        const data = await this.maintenanceService.getMaintenance(+id);
+        return { success: true, data };
+    }
 
     @Post()@Roles(Role.ADMIN, Role.MANAGER)
-    createAssignment(@Body() body: CreateMaintenanceDto) {
-        return this.maintenanceService.createMaintenance(body);}
+    async createAssignment(@Body() body: CreateMaintenanceDto) {
+        const data = await this.maintenanceService.createMaintenance(body);
+        return { success: true, data };
+    }
 
     @Put(':id')@Roles(Role.ADMIN, Role.MANAGER)
-    Maintenance(@Param('id') id: string, @Body() body: UpdateMaintenanceDto) {
-        return this.maintenanceService.updateMaintenance(+id, body);}
+    async Maintenance(@Param('id') id: string, @Body() body: UpdateMaintenanceDto) {
+        const data = await this.maintenanceService.updateMaintenance(+id, body);
+        return { success: true, data };
+    }
 
     @Delete(':id')@Roles(Role.ADMIN, Role.MANAGER)
-    deleteAssignment(@Param('id') id: string) {
-        return this.maintenanceService.deleteMaintenance(+id);}
+    async deleteAssignment(@Param('id') id: string) {
+        const data = await this.maintenanceService.deleteMaintenance(+id);
+        return { success: true, data };
+    }
 }

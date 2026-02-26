@@ -41,19 +41,36 @@ export class UserService {
     }
 
     // 4. Cập nhật user
-    async updateUser(id: number, body: UpdateUserDto) {
-        const user = await this.prisma.user.findFirst({
-            where: { userId: id },
+    async updateUser(id: number, body: UpdateUserDto, req: any) {
+
+        const user = await this.prisma.user.findUnique({
+            where: { userId: id }
         });
 
         if (!user) {
             throw new HttpException('User không tồn tại', HttpStatus.NOT_FOUND);
         }
+
+        // Nếu là USER → chỉ được sửa chính mình
+
+        if (req.user.role !== "admin" && req.user.userId !== id) {
+            throw new HttpException('Bạn chỉ được cập nhật tài khoản của mình', HttpStatus.FORBIDDEN);
+        }
+        // USER không được đổi role
+        if (req.user.role === 'user' && body.role) {
+            throw new HttpException('Bạn không có quyền thay đổi role', HttpStatus.FORBIDDEN);
+        }
+
+        // Nếu đổi password thì hash
+        if (body.password) {
+            body.password = await bcrypt.hash(body.password, 10);
+        }
+
         return this.prisma.user.update({
             where: { userId: id },
             data: body
+        });
 
-        })
     }
 
     // 5. Xóa user
